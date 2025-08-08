@@ -1,0 +1,266 @@
+openapi: 3.0.0
+info:
+  title: Social Media Analytics API
+  description: API for real-time social media analysis including conversation clustering, hashtag extraction, and viral content detection
+  version: 1.0.0
+
+paths:
+  /cluster-conversations:
+    post:
+      summary: Cluster conversations by sentiment and topics from past 2 hours
+      description: Groups recent conversations by sentiment (positive, negative, neutral) and identifies topic clusters
+      operationId: clusterConversations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                time_window:
+                  type: string
+                  description: Time window for analysis
+                  default: "120 minutes"
+                cluster_count:
+                  type: integer
+                  description: Number of topic clusters to create
+                  default: 5
+      responses:
+        '200':
+          description: Successfully clustered conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sentiment_clusters:
+                    type: object
+                    properties:
+                      positive:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TopicCluster'
+                      negative:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TopicCluster'
+                      neutral:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TopicCluster'
+                  time_window:
+                    type: string
+                  total_conversations:
+                    type: integer
+                  analysis_timestamp:
+                    type: string
+                    format: date-time
+
+  /extract-top-hashtags-keywords:
+    post:
+      summary: Extract top 10 hashtags and keywords from past 2 hours
+      description: Identifies and ranks the most popular hashtags and keywords from recent conversations
+      operationId: extractHashtagsKeywords
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                time_window:
+                  type: string
+                  description: Time window for analysis
+                  default: "120 minutes"
+                limit:
+                  type: integer
+                  description: Number of top items to return
+                  default: 10
+      responses:
+        '200':
+          description: Successfully extracted hashtags and keywords
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  top_hashtags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HashtagItem'
+                  top_keywords:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KeywordItem'
+                  time_window:
+                    type: string
+                  total_conversations_analyzed:
+                    type: integer
+                  analysis_timestamp:
+                    type: string
+                    format: date-time
+
+  /identify-viral-content:
+    post:
+      summary: Identify viral content candidates from past 2 hours
+      description: Detects content with viral potential based on engagement velocity and anomaly detection
+      operationId: identifyViralContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                time_window:
+                  type: string
+                  description: Time window for analysis
+                  default: "120 minutes"
+                viral_threshold:
+                  type: number
+                  description: Minimum viral score threshold
+                  default: 0.7
+                max_results:
+                  type: integer
+                  description: Maximum number of viral candidates to return
+                  default: 10
+      responses:
+        '200':
+          description: Successfully identified viral content candidates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  viral_candidates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ViralContent'
+                  time_window:
+                    type: string
+                  total_content_analyzed:
+                    type: integer
+                  analysis_timestamp:
+                    type: string
+                    format: date-time
+                  detection_criteria:
+                    type: object
+                    properties:
+                      viral_score_threshold:
+                        type: number
+                      velocity_based:
+                        type: boolean
+                      anomaly_detection:
+                        type: boolean
+
+components:
+  schemas:
+    TopicCluster:
+      type: object
+      properties:
+        cluster_id:
+          type: integer
+        topic_keywords:
+          type: array
+          items:
+            type: string
+        conversation_count:
+          type: integer
+        total_engagement:
+          type: integer
+        sample_conversations:
+          type: array
+          items:
+            type: object
+            properties:
+              text_preview:
+                type: string
+              engagement:
+                type: integer
+              timestamp:
+                type: string
+              sentiment_score:
+                type: number
+              hashtags:
+                type: array
+                items:
+                  type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+
+    HashtagItem:
+      type: object
+      properties:
+        hashtag:
+          type: string
+        count:
+          type: integer
+        engagement_weighted_score:
+          type: number
+        growth_rate:
+          type: number
+        related_topics:
+          type: array
+          items:
+            type: string
+        reference_ids:
+          type: array
+          items:
+            type: string
+
+    KeywordItem:
+      type: object
+      properties:
+        keyword:
+          type: string
+        frequency:
+          type: integer
+        relevance_score:
+          type: number
+        context_topics:
+          type: array
+          items:
+            type: string
+        sentiment_score:
+          type: number
+        reference_ids:
+          type: array
+          items:
+            type: string
+
+    ViralContent:
+      type: object
+      properties:
+        content_id:
+          type: string
+        text_preview:
+          type: string
+        viral_score:
+          type: number
+        engagement_velocity:
+          type: number
+        growth_rate:
+          type: number
+        anomaly_score:
+          type: number
+        current_engagement:
+          type: integer
+        timestamp:
+          type: string
+        confidence:
+          type: string
+          enum: [high, medium, low]
+        viral_indicators:
+          type: array
+          items:
+            type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+        keywords:
+          type: array
+          items:
+            type: string
