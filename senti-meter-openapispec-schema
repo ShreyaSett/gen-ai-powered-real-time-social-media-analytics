@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+  title: Brand Analysis API
+  description: API for analyzing brand sentiment and detecting fake news
+  version: 1.0.0
+
+paths:
+  /analyze-brand-sentiment:
+    post:
+      summary: Analyze brand sentiment trends
+      description: Analyzes sentiment distribution and trends for a specific brand
+      operationId: analyzeBrandSentiment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ["brand"]
+              properties:
+                brand:
+                  type: string
+                  description: Brand name to analyze
+                  example: "Apple"
+                timeWindow:
+                  type: string
+                  description: Time window for analysis (defaults to "2h")
+                  default: "2h"
+                  enum: ["1h", "2h"]
+      responses:
+        '200':
+          description: Successfully analyzed brand sentiment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  brand:
+                    type: string
+                  timeWindow:
+                    type: string
+                  totalPosts:
+                    type: integer
+                  sentimentDistribution:
+                    type: object
+                    properties:
+                      positive:
+                        type: object
+                        properties:
+                          percentage:
+                            type: number
+                          count:
+                            type: integer
+                          trend:
+                            type: string
+                          changeFromPrevious:
+                            type: number
+                      negative:
+                        type: object
+                        properties:
+                          percentage:
+                            type: number
+                          count:
+                            type: integer
+                          trend:
+                            type: string
+                          changeFromPrevious:
+                            type: number
+                      neutral:
+                        type: object
+                        properties:
+                          percentage:
+                            type: number
+                          count:
+                            type: integer
+                          trend:
+                            type: string
+                          changeFromPrevious:
+                            type: number
+                  significantEvents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        event:
+                          type: string
+                        timestamp:
+                          type: string
+                        sentimentImpact:
+                          type: number
+                  topTopics:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topic:
+                          type: string
+                        count:
+                          type: integer
+                        sentiment:
+                          type: string
+                  dataQuality:
+                    type: object
+                    properties:
+                      reliability:
+                        type: string
+                        enum: ["High", "Medium", "Low"]
+                      sampleSize:
+                        type: integer
+                      confidence:
+                        type: number
+                  analysisTimestamp:
+                    type: string
+                    format: date-time
+
+  /detect-fake-news:
+    post:
+      summary: Detect fake news for a brand
+      description: Analyzes recent posts for potential fake news about a brand
+      operationId: detectFakeNews
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ["brand"]
+              properties:
+                brand:
+                  type: string
+                  description: Brand name to analyze
+                  example: "Apple"
+                timeWindow:
+                  type: string
+                  description: Time window for analysis (defaults to "2h")
+                  default: "2h"
+                  enum: ["1h", "2h"]
+      responses:
+        '200':
+          description: Successfully analyzed fake news
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  brand:
+                    type: string
+                  timeWindow:
+                    type: string
+                  totalPostsAnalyzed:
+                    type: integer
+                  fakeNewsDetections:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        content:
+                          type: string
+                        timestamp:
+                          type: string
+                        confidenceScore:
+                          type: number
+                        reach:
+                          type: integer
+                        sourceType:
+                          type: string
+                        verificationStatus:
+                          type: string
+                  summary:
+                    type: object
+                    properties:
+                      totalSuspiciousPosts:
+                        type: integer
+                      suspiciousPercentage:
+                        type: number
+                      riskLevel:
+                        type: string
+                        enum: ["Low", "Medium", "High", "Critical"]
+                      recommendedActions:
+                        type: array
+                        items:
+                          type: string
+                  analysisTimestamp:
+                    type: string
+                    format: date-time
